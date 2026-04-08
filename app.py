@@ -9,11 +9,18 @@ app = Flask(__name__)
 
 # Load the trained Keras 3 Siamese model
 MODEL_PATH = 'model/siamese_digit_similarity.keras'
-model = keras.models.load_model(
-    MODEL_PATH, 
-    custom_objects={'abs': abs}, 
-    compile=False
-)
+model = None
+
+def get_model():
+    global model
+    if model is None:
+        from tensorflow import keras
+        model = keras.models.load_model(
+            MODEL_PATH,
+            custom_objects={'abs': abs},
+            compile=False
+        )
+    return model
 
 def preprocess_image(image_bytes):
     # Convert image to grayscale ('L') and resize to 28x28 for MNIST
@@ -42,6 +49,7 @@ def predict():
         img2_processed = preprocess_image(img2_bytes)
         
         # Predict similarity (Contrastive loss network output)
+        model = get_model()
         prediction = model.predict([img1_processed, img2_processed])
         similarity_score = float(prediction[0][0])
         
