@@ -14,7 +14,12 @@ model = None
 def get_model():
     global model
     if model is None:
+        import tensorflow as tf
         from tensorflow import keras
+        
+        # 🔥 LIMIT MEMORY USAGE
+        tf.config.set_visible_devices([], 'GPU')
+        
         model = keras.models.load_model(
             MODEL_PATH,
             custom_objects={'abs': abs},
